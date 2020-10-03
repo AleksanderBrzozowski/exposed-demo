@@ -31,7 +31,7 @@ dependencies {
     testImplementation("org.testcontainers:postgresql")
     implementation("org.jetbrains.exposed:spring-transaction:0.27.1")
     implementation("org.jetbrains.exposed:exposed-core:0.27.1")
-    implementation("org.jetbrains.exposed:exposed-dao:0.27.1")
+    implementation("org.jetbrains.exposed:exposed-java-time:0.27.1")
 }
 
 dependencyManagement {

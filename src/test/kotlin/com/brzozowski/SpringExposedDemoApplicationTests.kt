@@ -1,26 +1,27 @@
 package com.brzozowski
 
+import org.junit.Assert.assertEquals
 import org.junit.ClassRule
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Profile
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
-import org.springframework.transaction.support.TransactionTemplate
 import org.testcontainers.containers.PostgreSQLContainer
+import java.time.Instant
 
-@Profile("test")
 @SpringBootTest
 class SpringExposedDemoApplicationTests {
 
 
     @Autowired
-    lateinit var transactionTemplate: TransactionTemplate
+    lateinit var personRepository: PersonRepository
 
     @Test
-    fun contextLoads() {
-        transactionTemplate.transactionManager
+    fun personTest() {
+        val timestamp = Instant.now()
+        personRepository.insert(Person("abrzozo1", "Aleksander Brzozowski", timestamp))
+        assertEquals(personRepository.findAll(), listOf(Person("abrzozo1", "Aleksander Brzozowski", timestamp)))
     }
 
 
@@ -33,6 +34,7 @@ class SpringExposedDemoApplicationTests {
                     withDatabaseName("test")
                     withUsername("test")
                     withPassword("test")
+                    withInitScript("init.sql")
                     start()
                 }
 
