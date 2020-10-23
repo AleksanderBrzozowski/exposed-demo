@@ -2,8 +2,15 @@ package com.brzozowski
 
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.spring.SpringTransactionManager
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.`java-time`.timestamp
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.update
+import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -14,7 +21,6 @@ import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.support.TransactionTemplate
-import java.lang.RuntimeException
 import java.time.Instant
 import javax.sql.DataSource
 
@@ -129,7 +135,18 @@ class AppConfig {
 }
 
 @SpringBootApplication
-class SpringExposedDemoApplication
+class SpringExposedDemoApplication(private val inTransaction: TransactionExecutor,
+                                   private val personRepository: PersonRepository) : CommandLineRunner {
+
+    override fun run(vararg args: String?) {
+        inTransaction {
+            personRepository.insert(Person("abrzozo1", "Aleksander Brzozowski", Instant.now(), null))
+            inTransaction(propagation = Propagation.REQUIRES_NEW) {
+               personRepository.insert(Person("abrzozo1", "Aleksander Brzozowski", Instant.now(), null))
+            }
+        }
+    }
+}
 
 fun main(args: Array<String>) {
     runApplication<SpringExposedDemoApplication>(*args)
